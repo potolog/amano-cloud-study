@@ -1,0 +1,68 @@
+apiInfo:
+  title: AMANO API DOCUMENT
+  description: AMANO API DOCUMENT for Cloud service
+  termsOfServiceUrl: http://amano.co.kr
+  contact: AMANO
+  license: AMANO License
+  licenseUrl: http://amano.co.kr
+  version: 1
+
+---
+spring:
+  profiles: local
+  security:
+    enabled: false
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQLDialect
+#        show_sql: true
+#  datasource:
+#    url: jdbc:mysql://amano.ck5hnfyup74s.ap-northeast-2.rds.amazonaws.com/amano
+#    username: root
+#    password: 12345678
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    statusPageUrlPath: ${server.servletPath}info
+    healthCheckUrlPath: ${server.servletPath}health
+    metadataMap:
+        deployment: local
+        profile: local
+
+---
+spring:
+  profiles: dev
+  security:
+    enabled: false
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQLDialect
+#        show_sql: true
+#  datasource:
+#    url: jdbc:mysql://amano-cloud.ck5hnfyup74s.ap-northeast-2.rds.amazonaws.com/amano
+#    username: root
+#    password: 12345678
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST}:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    statusPageUrlPath: ${server.servletPath}info
+    healthCheckUrlPath: ${server.servletPath}health
+    metadataMap:
+        deployment: dev
+        profile: dev

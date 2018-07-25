@@ -1,0 +1,62 @@
+version: '3.3'
+
+# 개발서버에는, Dockerfile 을 빌드할 필요없이, 레지스트리에 업로드된 이미지를 사용함.
+
+services:
+  # 서비스 이름
+   amano-eureka:
+     image: gitlab.amano-cloud.com:5000/amano-eureka:v1
+     restart: always
+     ports:
+       - "8761:8761"
+     environment:
+       SPRING_PROFILES_ACTIVE: dev
+       #=> 스프링 부트 어플리케이션이, properties 식의 표현을 환경변수로 대문자 + _ 처리하면, 치환.
+
+  # 서비스 이름
+   amano-zuul:
+     depends_on:
+       - amano-eureka
+     image: gitlab.amano-cloud.com:5000/amano-zuul:v1
+     ports:
+       - "8080:8080"
+     restart: always
+     environment:
+       SPRING_PROFILES_ACTIVE: dev
+       EUREKA_HOST: amano-eureka
+# 도커 컴포스가 뜨게되면, 컴포스 내부의 서비스들끼리 일종의 버츄얼 네트워크를 형성함.
+# 도커 compose 버츄얼 네트워크 내부에서는, 서비스 이름이 곧 호스트도메인으로서 동작하게 됨.
+
+
+   parking-service:
+      depends_on:
+        - amano-eureka
+      image: gitlab.amano-cloud.com:5000/parking-service:v1
+      ports:
+        - "9010:9010"
+      restart: always
+      environment:
+        SPRING_PROFILES_ACTIVE: dev
+        EUREKA_HOST: amano-eureka
+
+   ticket-service:
+      depends_on:
+        - amano-eureka
+      image: gitlab.amano-cloud.com:5000/ticket-service:v1
+      ports:
+        - "9020:9020"
+      restart: always
+      environment:
+        SPRING_PROFILES_ACTIVE: dev
+        EUREKA_HOST: amano-eureka
+
+
+# 서비스 시작: docker-compose up
+
+# 소스코드 수정 후 재시작:
+# mvn install => 메이븐 빌드(jar 도출)
+# docker-compose build => 도커 재빌드(jar to docker image)
+# docker-compose up => 최종 실행
+# 테스트
+
+

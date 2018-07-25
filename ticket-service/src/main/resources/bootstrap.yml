@@ -1,0 +1,16 @@
+spring:
+  application:
+      name: ticket-service
+  profiles:
+    active: local
+
+server:
+  port: 9020
+
+---
+spring:
+  profiles: local
+
+---
+spring:
+  profiles: dev

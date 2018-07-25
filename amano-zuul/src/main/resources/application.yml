@@ -1,0 +1,114 @@
+server:
+  port: 8080
+
+endpoints:
+  routes:
+    sensitive: false
+
+management:
+  security:
+    enabled: false
+
+security:
+  basic:
+    enabled: false
+
+zuul:
+  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin
+  addProxyHeaders: true
+
+  # Decides to checkhead the token.
+  iam-authentication: false
+
+  # Key to determine if the token's signature is correct.
+  # It must be the same key that IAM used to issue the token.
+  # Copy and paste from your IAM's iam.jwt.key
+  iam-jwt-key: my-jwt-encrypt-key-my-jwt-encrypt-key
+
+  # 메타데이터 암호화 키
+  metadata-encoder-secret1: Bar12345Bar12345
+  metadata-encoder-secret2: ThisIsASecretKet
+
+  # 복호화 할 메타데이터 필드.
+  secure-metadata-fields:
+    - "$.gitlabToken"
+
+  routes:
+    car:
+      path: /cars/**
+      serviceId: parking-service
+      stripPrefix: false
+    parking-status:
+      path: /parking/**
+      serviceId: parking-service
+      stripPrefix: false
+    ticket:
+      path: /ticket/**
+      serviceId: ticket-service
+      stripPrefix: false
+
+###########################################
+
+ribbon:
+  # Max number of retries on the same server (excluding the first try)
+  MaxAutoRetries: 1
+
+  # Max number of next servers to retry (excluding the first server)
+  MaxAutoRetriesNextServer: 1
+
+  # Whether all operations can be retried for this client
+  OkToRetryOnAllOperations: true
+
+  # Interval to refresh the server list from the source
+  ServerListRefreshInterval: 3000
+
+  # Connect timeout used by Apache HttpClient
+  ConnectTimeout: 5000
+
+  # Read timeout used by Apache HttpClient
+  ReadTimeout: 5000
+
+
+---
+spring:
+  profiles: local
+
+dcos:
+  deployment:
+    role: local
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+      healthcheck:
+        enabled: true    
+  instance:
+    statusPageUrlPath: ${server.servletPath}info
+    healthCheckUrlPath: ${server.servletPath}health
+    metadataMap:
+        deployment: local
+        profile: local
+        appType: zuul
+
+---
+spring:
+  profiles: dev
+
+dcos:
+  deployment:
+    role: dev
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST}:8761/eureka/
+      healthcheck:
+        enabled: true
+  instance:
+    statusPageUrlPath: ${server.servletPath}info
+    healthCheckUrlPath: ${server.servletPath}health
+    metadataMap:
+        deployment: dev
+        profile: dev
+        appType: zuul
